@@ -1,0 +1,22 @@
+{
+  "name": "krazeapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sauravsb99/KrazeApp.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sauravsb99/KrazeApp/issues"
+  },
+  "homepage": "https://github.com/sauravsb99/KrazeApp#readme",
+  "dependencies": {
+    "node-geocoder": "^4.2.0"
+  }
+}
