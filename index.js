@@ -11,21 +11,28 @@ const options = {
 const geoCoder = NodeGeocoder(options);
 
 
-const readline = require('readline').createInterface({
-  input: process.stdin,
-  output: process.stdout
+
+var fs = require('fs');
+
+try {  
+    var data = fs.readFileSync('input.txt', 'utf8');
+    console.log(data.toString());    
+} catch(e) {
+    console.log('Error:', e.stack);
+}
+
+fs.writeFile('output.txt', data, function (err) {
+  if (err) return console.log(err);
+  console.log('Data > output.txt');
 });
 
-readline.question('Enter the Location', Location =>{
-
-geoCoder.geocode('Location')
-  .then((res)=> {
-    console.log(res);
-  })
-  .catch((err)=> {
-    console.log(err);
-  });
+// geoCoder.geocode('Location')
+//   .then((res)=> {
+//     console.log(res);
+//   })
+//   .catch((err)=> {
+//     console.log(err);
+//   });
 
   
-  readline.close();
-});
+;
