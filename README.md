@@ -1,1 +1,1 @@
-# KrazeApp
+KRAZEAPP Take-Home Assignment

@@ -1,19 +1,23 @@
-const NodeGeocoder = require('node-geocoder');
+//Importing Necessary Packages
+const NodeGeocoder = require('node-geocoder'); 
 const NodeCache = require("node-cache");
 const fs = require('fs');
 
-const cache = new NodeCache({ stdTTL: 15 });
+const cache = new NodeCache({ stdTTL: 15 }); //Setting up the cache
 
 const options = {
   provider: 'google',
 
-  apiKey: "API_KEY", // for Mapquest, OpenCage, Google Premier
-  formatter: null // 'gpx', 'string', ...
+  apiKey: "API_KEY", // API KEY for Google/positionstack
+  formatter: null // 'gpx', 'string'
 };
 
-const geoCoder = NodeGeocoder(options);
+const geoCoder = NodeGeocoder(options);//setting up the geocoder
 
-function verifyCache(data_list){
+/*
+  Function to verify if cache is present or not
+*/
+function verifyCache(data_list){ 
   try {
     const id = data_list;
     if (cache.has(id)) {
@@ -27,7 +31,9 @@ function verifyCache(data_list){
   }
 }
 
-
+/*
+  Function to read the input file
+*/
 function readInputFile() {
   return new Promise(resolve => {
     var filename = process.argv[2];
@@ -40,6 +46,9 @@ function readInputFile() {
   });
 }
 
+/*
+  Function to get the Langitudes and Longitudes by calling the geoCoder.
+*/
 function getLatLong(arg) {
   return new Promise(resolve => {
     // resolve("lat 25 long 36");
@@ -55,6 +64,9 @@ function getLatLong(arg) {
     });
 }
 
+/*
+  Function to write the output into a txt file.
+*/
 function writeOutputFile(result) {
   return new Promise(resolve => {
     fs.writeFile('output.txt', result, function (err) {
@@ -65,13 +77,16 @@ function writeOutputFile(result) {
   });
 }
 
+/*
+  Acts as a main function which calls the respective functions in order.
+*/
 async function getGeoCodes(){
-  if (process.argv.length < 3) {
+  if (process.argv.length < 3) {                                      //Checks if the input file is present or not
     console.log('Usage: node ' + process.argv[1] + ' FILENAME');
     process.exit(1);
   }
   try{
-    const data_list = await readInputFile(); 
+    const data_list = await readInputFile();                          // Reads the input from the input file
   }
   catch{
     console.log("Exception Caught while reading the input File");
@@ -79,7 +94,7 @@ async function getGeoCodes(){
   var result = "";
   for(let i = 0 ; i < data_list.length;i++){
     try{
-      if(verifyCache(data_list[i])){
+      if(verifyCache(data_list[i])){                                  // Checks if it is present in Cache or not
         result += cache.get(data_list[i]);
         result+="\n";
         continue;
@@ -87,7 +102,7 @@ async function getGeoCodes(){
       
       else{
         
-        var lat_long = await getLatLong(data_list[i]);
+        var lat_long = await getLatLong(data_list[i]);                // If it's not present in the cache call google api and store in the cache
         console.log(lat_long,data_list[i]);
         const id = data_list[i];
         const data = lat_long;
@@ -107,7 +122,7 @@ async function getGeoCodes(){
     }
   }
   try{
-    const isWriteOK = await writeOutputFile(result);
+    const isWriteOK = await writeOutputFile(result);                  // Write the changes in the output file
     console.log(isWriteOK);
   }
   catch{
