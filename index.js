@@ -1,5 +1,8 @@
 const NodeGeocoder = require('node-geocoder');
+const NodeCache = require("node-cache");
 const fs = require('fs');
+
+const cache = new NodeCache({ stdTTL: 15 });
 
 const options = {
   provider: 'google',
@@ -9,6 +12,21 @@ const options = {
 };
 
 const geoCoder = NodeGeocoder(options);
+
+function verifyCache(data_list){
+  try {
+    const id = data_list;
+    if (cache.has(id)) {
+      return true;
+    }
+    else{
+      return false;
+    }
+  } catch (err) {
+    throw new Error(err);
+  }
+}
+
 
 function readInputFile() {
   return new Promise(resolve => {
@@ -24,16 +42,16 @@ function readInputFile() {
 
 function getLatLong(arg) {
   return new Promise(resolve => {
-    resolve("lat 25 long 36");
-    // geoCoder.geocode(arg)
-    // .then((res)=> {
-    //   resolve(res);
-    //   console.log(res);
-    // })
-    // .catch((err)=> {
-    //   console.log(err);
-    //   throw err;
-    // });
+    // resolve("lat 25 long 36");
+    geoCoder.geocode(arg)
+    .then((res)=> {
+      resolve(res);
+      console.log(res);
+    })
+    .catch((err)=> {
+      console.log(err);
+      throw err;
+    });
     });
 }
 
@@ -61,22 +79,41 @@ async function getGeoCodes(){
   var result = "";
   for(let i = 0 ; i < data_list.length;i++){
     try{
-      result += await getLatLong(data_list[i]);
-      result+="\n";
+      if(verifyCache(data_list[i])){
+        result += cache.get(data_list[i]);
+        result+="\n";
+        continue;
+      }
+      
+      else{
+        
+        var lat_long = await getLatLong(data_list[i]);
+        console.log(lat_long,data_list[i]);
+        const id = data_list[i];
+        const data = lat_long;
+        try{
+          cache.set(id, data);
+        }
+        catch(err){
+          console.log("Exception Caught while setting the cache",err);
+        }
+        result += lat_long;
+        result+="\n";
+      }
+      
     }
     catch{
       console.log("Exception Caught while converting data into geocodes");
     }
   }
-
-  const isWriteOK = await writeOutputFile(result);
-
-  console.log(isWriteOK);
-
+  try{
+    const isWriteOK = await writeOutputFile(result);
+    console.log(isWriteOK);
+  }
+  catch{
+    console.log("Exception caught while writing the geocodes");
+  }
 
 }
 
 getGeoCodes();
-
-  
-;
